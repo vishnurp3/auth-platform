@@ -1,9 +1,11 @@
 package com.vishnu.authplatform.identity.adapter.web;
 
 import com.vishnu.authplatform.identity.application.RegisterUserUseCase;
+import com.vishnu.authplatform.identity.application.ResendVerificationEmailUseCase;
 import com.vishnu.authplatform.identity.application.VerifyEmailUseCase;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +14,12 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final RegisterUserUseCase registerUserUseCase;
     private final VerifyEmailUseCase verifyEmailUseCase;
-
-    public UserController(RegisterUserUseCase registerUserUseCase, VerifyEmailUseCase verifyEmailUseCase) {
-        this.registerUserUseCase = registerUserUseCase;
-        this.verifyEmailUseCase = verifyEmailUseCase;
-    }
+    private final ResendVerificationEmailUseCase resendVerificationEmailUseCase;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest req) {
@@ -42,6 +41,12 @@ public class UserController {
         return ResponseEntity.ok(new VerifyResponse(UUID.fromString(result.userId()), result.status()));
     }
 
+    @PostMapping("/resend-verification")
+    public ResponseEntity<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest req) {
+        resendVerificationEmailUseCase.execute(new ResendVerificationEmailUseCase.Command(req.email()));
+        return ResponseEntity.accepted().build();
+    }
+
     public record RegisterRequest(@NotBlank String email, @NotBlank String password) {
     }
 
@@ -52,5 +57,8 @@ public class UserController {
     }
 
     public record VerifyResponse(UUID userId, String status) {
+    }
+
+    public record ResendVerificationRequest(@NotBlank String email) {
     }
 }

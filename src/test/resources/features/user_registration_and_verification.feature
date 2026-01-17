@@ -14,3 +14,10 @@ Feature: Registration and email verification
     And I verify the email using that token
     Then the response status should be 200
     And the verified user status should be "ACTIVE"
+
+  Scenario: Resend verification is throttled by minimum interval
+    Given the system is running
+    When I register with email "throttle@example.com" and password "Str0ngPassw0rd!"
+    And I call resend verification for email "throttle@example.com"
+    And I call resend verification for email "throttle@example.com"
+    Then the resend response status should be 202

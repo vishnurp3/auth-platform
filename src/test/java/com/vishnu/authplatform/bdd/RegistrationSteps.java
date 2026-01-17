@@ -22,6 +22,8 @@ public class RegistrationSteps {
     private ResponseEntity<Map> lastResponse;
     private String extractedToken;
 
+    private ResponseEntity<Void> resendResponse;
+
     @Given("the system is running")
     public void theSystemIsRunning() {
     }
@@ -73,6 +75,17 @@ public class RegistrationSteps {
     public void verifiedStatusShouldBe(String expected) {
         assertNotNull(lastResponse.getBody());
         assertEquals(expected, String.valueOf(lastResponse.getBody().get("status")));
+    }
+
+    @When("I call resend verification for email {string}")
+    public void resendVerification(String email) {
+        resendResponse = rest.postForEntity("/api/v1/users/resend-verification", Map.of("email", email), Void.class);
+    }
+
+    @Then("the resend response status should be {int}")
+    public void resendStatus(int code) {
+        assertNotNull(resendResponse);
+        assertEquals(code, resendResponse.getStatusCode().value());
     }
 
     private InMemoryEmailSender.SentEmail awaitEmail(Duration timeout) {

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,6 +79,17 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
                 )
         );
     }
+
+    @Override
+    public Optional<Instant> findLatestCreatedAtByUserId(UUID userId) {
+        return tokenJpa.findLatestCreatedAtByUserId(userId);
+    }
+
+    @Override
+    public long countIssuedSince(UUID userId, Instant since) {
+        return tokenJpa.countByUserIdAndCreatedAtGreaterThanEqual(userId, since);
+    }
+
 
     private User toDomainUser(UserEntity e) {
         return User.reconstitute(new UserId(e.getId()), Email.of(e.getEmail()), e.getPasswordHash(),

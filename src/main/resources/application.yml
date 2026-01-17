@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/auth_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    username: ${DB_USER:auth}
+    password: ${DB_PASSWORD:auth}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -26,8 +26,8 @@ spring:
   rabbitmq:
     host: ${RABBIT_HOST:localhost}
     port: ${RABBIT_PORT:5672}
-    username: ${RABBIT_USER}
-    password: ${RABBIT_PASSWORD}
+    username: ${RABBIT_USER:auth}
+    password: ${RABBIT_PASSWORD:auth}
     virtual-host: ${RABBIT_VHOST:/}
 
 management:
@@ -44,3 +44,7 @@ logging:
 app:
   verification:
     base-url: ${APP_VERIFICATION_BASE_URL:http://localhost:8080}
+    resend:
+      min-interval-seconds: ${APP_VERIFICATION_RESEND_MIN_INTERVAL_SECONDS:60}
+      max-per-hour: ${APP_VERIFICATION_RESEND_MAX_PER_HOUR:5}
+
