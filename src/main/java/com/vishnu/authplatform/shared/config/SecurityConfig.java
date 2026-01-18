@@ -23,6 +23,7 @@ public class SecurityConfig {
         http.httpBasic(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/api/v1/users/register", "/api/v1/users/verify-email",
                         "/api/v1/users/resend-verification").permitAll()

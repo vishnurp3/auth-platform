@@ -1,0 +1,5 @@
+app:
+  verification:
+    resend:
+      min-interval-seconds: 1
+      max-per-hour: 3
