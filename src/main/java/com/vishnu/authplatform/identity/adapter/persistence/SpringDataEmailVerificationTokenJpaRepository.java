@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 interface SpringDataEmailVerificationTokenJpaRepository extends JpaRepository<EmailVerificationTokenEntity, UUID> {
-    Optional<EmailVerificationTokenEntity> findByTokenHash(String tokenHash);
 
     @Query("select max(t.createdAt) from EmailVerificationTokenEntity t where t.userId = :userId")
     Optional<Instant> findLatestCreatedAtByUserId(UUID userId);

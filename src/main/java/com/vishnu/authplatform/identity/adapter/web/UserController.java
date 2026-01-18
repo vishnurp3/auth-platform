@@ -26,19 +26,19 @@ public class UserController {
         RegisterUserUseCase.Result result =
                 registerUserUseCase.execute(new RegisterUserUseCase.Command(req.email(), req.password()));
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new RegisterResponse(result.userId(), result.email(), result.status()));
+                .body(new RegisterResponse(result.userId(), result.email(), result.status().name()));
     }
 
     @GetMapping("/verify-email")
     public ResponseEntity<VerifyResponse> verifyByQuery(@RequestParam("token") String token) {
         VerifyEmailUseCase.Result result = verifyEmailUseCase.execute(new VerifyEmailUseCase.Command(token));
-        return ResponseEntity.ok(new VerifyResponse(UUID.fromString(result.userId()), result.status()));
+        return ResponseEntity.ok(new VerifyResponse(result.userId(), result.status().name()));
     }
 
     @PostMapping("/verify-email")
     public ResponseEntity<VerifyResponse> verifyByBody(@Valid @RequestBody VerifyRequest req) {
         VerifyEmailUseCase.Result result = verifyEmailUseCase.execute(new VerifyEmailUseCase.Command(req.token()));
-        return ResponseEntity.ok(new VerifyResponse(UUID.fromString(result.userId()), result.status()));
+        return ResponseEntity.ok(new VerifyResponse(result.userId(), result.status().name()));
     }
 
     @PostMapping("/resend-verification")

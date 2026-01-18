@@ -35,8 +35,16 @@ public final class User {
 
     public User activate(Instant now) {
         if (this.status != UserStatus.PENDING_VERIFICATION) {
-            return this;
+            throw new IllegalStateException("user cannot be activated from status: " + this.status);
         }
         return new User(this.id, this.email, this.passwordHash, UserStatus.ACTIVE, this.createdAt, now);
+    }
+
+    public boolean canBeActivated() {
+        return this.status == UserStatus.PENDING_VERIFICATION;
+    }
+
+    public boolean canReceiveVerificationEmail() {
+        return this.status == UserStatus.PENDING_VERIFICATION;
     }
 }

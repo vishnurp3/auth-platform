@@ -48,8 +48,8 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
     }
 
     @Override
-    public Optional<User> findById(UUID userId) {
-        return userJpa.findById(userId).map(this::toDomainUser);
+    public Optional<User> findById(UserId userId) {
+        return userJpa.findById(userId.value()).map(this::toDomainUser);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
     }
 
     @Override
-    public Optional<EmailVerificationToken> findByTokenHash(String tokenHash) {
-        return tokenJpa.findByTokenHash(tokenHash).map(saved ->
+    public Optional<EmailVerificationToken> findById(UUID tokenId) {
+        return tokenJpa.findById(tokenId).map(saved ->
                 EmailVerificationToken.reconstitute(
                         saved.getId(),
                         new UserId(saved.getUserId()),
@@ -81,13 +81,13 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
     }
 
     @Override
-    public Optional<Instant> findLatestCreatedAtByUserId(UUID userId) {
-        return tokenJpa.findLatestCreatedAtByUserId(userId);
+    public Optional<Instant> findLatestCreatedAtByUserId(UserId userId) {
+        return tokenJpa.findLatestCreatedAtByUserId(userId.value());
     }
 
     @Override
-    public long countIssuedSince(UUID userId, Instant since) {
-        return tokenJpa.countByUserIdAndCreatedAtGreaterThanEqual(userId, since);
+    public long countIssuedSince(UserId userId, Instant since) {
+        return tokenJpa.countByUserIdAndCreatedAtGreaterThanEqual(userId.value(), since);
     }
 
 

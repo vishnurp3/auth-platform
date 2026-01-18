@@ -25,11 +25,14 @@ public final class EmailVerificationToken {
     @NonNull
     private final Instant createdAt;
 
-    public static EmailVerificationToken issue(UserId userId, String tokenHash, Instant now, Instant expiresAt) {
+    public static EmailVerificationToken issue(UUID id, UserId userId, String tokenHash, Instant now, Instant expiresAt) {
+        if (id == null) {
+            throw new IllegalArgumentException("id is required");
+        }
         if (!expiresAt.isAfter(now)) {
             throw new IllegalArgumentException("expiresAt must be after now");
         }
-        return new EmailVerificationToken(UUID.randomUUID(), userId, tokenHash, expiresAt, null, now);
+        return new EmailVerificationToken(id, userId, tokenHash, expiresAt, null, now);
     }
 
     public static EmailVerificationToken reconstitute(UUID id, UserId userId, String tokenHash, Instant expiresAt, Instant usedAt, Instant createdAt) {
@@ -49,5 +52,14 @@ public final class EmailVerificationToken {
             return this;
         }
         return new EmailVerificationToken(id, userId, tokenHash, expiresAt, now, createdAt);
+    }
+
+    public void validateForUse(Instant now) {
+        if (isUsed()) {
+            throw new IllegalStateException("token already used");
+        }
+        if (isExpired(now)) {
+            throw new IllegalStateException("token expired");
+        }
     }
 }
