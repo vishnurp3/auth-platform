@@ -1,4 +1,6 @@
 app:
+  admin:
+    api-key: test-admin-api-key
   verification:
     resend:
       min-interval-seconds: 1

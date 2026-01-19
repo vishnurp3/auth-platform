@@ -32,27 +32,22 @@ public class UserSteps {
     private final TestRestTemplate rest;
     private final ObjectMapper objectMapper;
     private final TestEmailSender emailSender;
+    private final SharedContext sharedContext;
 
-    private ResponseEntity<String> lastResponse;
     private ResponseEntity<String> resendResponse;
     private String verificationToken;
 
     @Before
     public void resetScenarioState() {
         emailSender.clear();
-        lastResponse = null;
         resendResponse = null;
         verificationToken = null;
-    }
-
-    @Given("the system is running")
-    public void theSystemIsRunning() {
     }
 
     @Given("I am a registered user {string}")
     public void iAmARegisteredUser(String email) {
         register(email, DEFAULT_PASSWORD);
-        assertEquals(201, lastResponse.getStatusCode().value());
+        assertEquals(201, sharedContext.getLastResponse().getStatusCode().value());
         awaitEmailCount(1, EMAIL_TIMEOUT);
     }
 
@@ -61,20 +56,14 @@ public class UserSteps {
         register(normalizeInput(email), normalizeInput(password));
     }
 
-    @Then("the response status should be {int}")
-    public void responseStatusShouldBe(int code) {
-        assertNotNull(lastResponse, "No response captured");
-        assertEquals(code, lastResponse.getStatusCode().value());
-    }
-
     @Then("the user status should be {string}")
     public void userStatusShouldBe(String expected) {
-        assertEquals(expected, readField(lastResponse, "status"));
+        assertEquals(expected, readField(sharedContext.getLastResponse(), "status"));
     }
 
     @Then("the verified user status should be {string}")
     public void verifiedUserStatusShouldBe(String expected) {
-        assertEquals(expected, readField(lastResponse, "status"));
+        assertEquals(expected, readField(sharedContext.getLastResponse(), "status"));
     }
 
     @Then("the email outbox size should be {int}")
@@ -101,19 +90,19 @@ public class UserSteps {
     @When("I verify the email using the token")
     public void verifyEmailUsingToken() {
         assertNotNull(verificationToken, "No verification token captured");
-        lastResponse = rest.getForEntity("/api/v1/users/verify-email?token=" + verificationToken, String.class);
+        sharedContext.setLastResponse(rest.getForEntity("/api/v1/users/verify-email?token=" + verificationToken, String.class));
     }
 
     @When("I verify the email using token {string}")
     public void verifyEmailUsingToken(String token) {
         String normalized = normalizeInput(token);
-        lastResponse = rest.getForEntity("/api/v1/users/verify-email?token=" + normalized, String.class);
+        sharedContext.setLastResponse(rest.getForEntity("/api/v1/users/verify-email?token=" + normalized, String.class));
     }
 
     @When("I verify the email using a valid but unknown token")
     public void verifyEmailUsingUnknownToken() {
         VerificationToken token = VerificationToken.of(UUID.randomUUID(), "unknown-secret");
-        lastResponse = rest.getForEntity("/api/v1/users/verify-email?token=" + token.encode(), String.class);
+        sharedContext.setLastResponse(rest.getForEntity("/api/v1/users/verify-email?token=" + token.encode(), String.class));
     }
 
     @When("I request a verification email resend for {string}")
@@ -134,7 +123,7 @@ public class UserSteps {
 
     private void register(String email, String password) {
         Map<String, Object> body = Map.of("email", email, "password", password);
-        lastResponse = postJson("/api/v1/users/register", body);
+        sharedContext.setLastResponse(postJson("/api/v1/users/register", body));
     }
 
     private String readField(ResponseEntity<String> response, String field) {

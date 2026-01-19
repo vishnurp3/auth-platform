@@ -41,7 +41,25 @@ logging:
     root: INFO
     org.springframework.security: INFO
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    display-request-duration: true
+    try-it-out-enabled: true
+  show-actuator: false
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
 app:
+  admin:
+    api-key: ${APP_ADMIN_API_KEY:admin_sk_9f3c8a2d7e4b6f1a0c5d8e2b4a7c9f6}
   verification:
     base-url: ${APP_VERIFICATION_BASE_URL:http://localhost:8080}
     resend:
