@@ -1,6 +1,7 @@
 package com.vishnu.authplatform.application.adapter.config;
 
 import com.vishnu.authplatform.application.application.CreateApplicationUseCase;
+import com.vishnu.authplatform.application.application.UpdateApplicationStatusUseCase;
 import com.vishnu.authplatform.application.application.port.ApplicationRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,5 +17,13 @@ public class ApplicationUseCaseConfig {
             Clock clock
     ) {
         return new CreateApplicationUseCase(applicationRepository, clock);
+    }
+
+    @Bean
+    public UpdateApplicationStatusUseCase updateApplicationStatusUseCase(
+            ApplicationRepository applicationRepository,
+            Clock clock
+    ) {
+        return new UpdateApplicationStatusUseCase(applicationRepository, clock);
     }
 }

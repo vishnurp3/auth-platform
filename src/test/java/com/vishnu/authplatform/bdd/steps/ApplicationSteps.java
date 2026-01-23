@@ -84,6 +84,22 @@ public class ApplicationSteps {
         sharedContext.setLastResponse(postJsonWithAuth(APPLICATIONS_ENDPOINT, body, null));
     }
 
+    @When("I update the status of application {string} to {string}")
+    public void iUpdateStatusOfApplication(String applicationCode, String status) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", normalizeInput(status));
+        sharedContext.setLastResponse(patchJsonWithAuth(
+                APPLICATIONS_ENDPOINT + "/" + applicationCode + "/status", body, currentApiKey));
+    }
+
+    @When("I update the status of application without authentication {string} to {string}")
+    public void iUpdateStatusOfApplicationWithoutAuthentication(String applicationCode, String status) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", normalizeInput(status));
+        sharedContext.setLastResponse(patchJsonWithAuth(
+                APPLICATIONS_ENDPOINT + "/" + applicationCode + "/status", body, null));
+    }
+
     @Then("the application code should be {string}")
     public void applicationCodeShouldBe(String expected) {
         assertEquals(expected, readField("applicationCode"));
@@ -147,6 +163,21 @@ public class ApplicationSteps {
                 headers.set(API_KEY_HEADER, apiKey);
             }
             return rest.exchange(path, HttpMethod.POST, new HttpEntity<>(payload, headers), String.class);
+        } catch (Exception e) {
+            fail("Failed to serialize request: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private ResponseEntity<String> patchJsonWithAuth(String path, Map<String, Object> body, String apiKey) {
+        try {
+            String payload = objectMapper.writeValueAsString(body);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (apiKey != null) {
+                headers.set(API_KEY_HEADER, apiKey);
+            }
+            return rest.exchange(path, HttpMethod.PATCH, new HttpEntity<>(payload, headers), String.class);
         } catch (Exception e) {
             fail("Failed to serialize request: " + e.getMessage());
             return null;
