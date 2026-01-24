@@ -1,19 +1,20 @@
 package com.vishnu.authplatform.identity.application;
 
+import com.vishnu.authplatform.identity.application.command.RegisterUserCommand;
 import com.vishnu.authplatform.identity.application.port.EmailVerificationTokenRepository;
 import com.vishnu.authplatform.identity.application.port.PasswordHasher;
 import com.vishnu.authplatform.identity.application.port.UserRepository;
 import com.vishnu.authplatform.identity.application.port.VerificationEmailPublisher;
+import com.vishnu.authplatform.identity.application.result.IssuedTokenPair;
+import com.vishnu.authplatform.identity.application.result.RegisterUserResult;
 import com.vishnu.authplatform.identity.domain.Email;
 import com.vishnu.authplatform.identity.domain.Password;
 import com.vishnu.authplatform.identity.domain.User;
 import com.vishnu.authplatform.identity.domain.UserId;
-import com.vishnu.authplatform.identity.domain.UserStatus;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class RegisterUserUseCase {
@@ -25,9 +26,9 @@ public final class RegisterUserUseCase {
     private final VerificationEmailPublisher verificationEmailPublisher;
     private final Clock clock;
 
-    public Result execute(Command cmd) {
-        Email email = Email.of(cmd.email());
-        Password password = Password.of(cmd.password());
+    public RegisterUserResult execute(RegisterUserCommand cmd) {
+        Email email = new Email(cmd.email());
+        Password password = new Password(cmd.password());
 
         if (userRepository.existsByEmail(email)) {
             throw new IllegalStateException("email already registered");
@@ -37,7 +38,7 @@ public final class RegisterUserUseCase {
         User user = User.newPending(UserId.newId(), email, passwordHasher.hash(password.value()), now);
         user = userRepository.save(user);
 
-        VerificationTokenService.IssuedTokenPair tokenPair = verificationTokenService.issueToken(user.id(), now);
+        IssuedTokenPair tokenPair = verificationTokenService.issueToken(user.id(), now);
         tokenRepository.save(tokenPair.token());
 
         verificationEmailPublisher.publishSendVerificationEmail(
@@ -46,12 +47,6 @@ public final class RegisterUserUseCase {
                 tokenPair.verificationToken().encode()
         );
 
-        return new Result(user.id().value(), user.email().value(), user.status());
-    }
-
-    public record Command(String email, String password) {
-    }
-
-    public record Result(UUID userId, String email, UserStatus status) {
+        return new RegisterUserResult(user.id().value(), user.email().value(), user.status());
     }
 }

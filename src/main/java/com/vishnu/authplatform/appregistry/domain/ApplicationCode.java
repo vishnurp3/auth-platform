@@ -1,4 +1,4 @@
-package com.vishnu.authplatform.application.domain;
+package com.vishnu.authplatform.appregistry.domain;
 
 import java.util.regex.Pattern;
 
@@ -10,17 +10,10 @@ public record ApplicationCode(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("applicationCode is required");
         }
+        value = value.trim().toUpperCase();
         if (!CODE_PATTERN.matcher(value).matches()) {
             throw new IllegalArgumentException(
                     "applicationCode must start with a letter, contain only uppercase letters, digits, and underscores, and be 2-50 characters");
         }
-    }
-
-    public static ApplicationCode of(String raw) {
-        if (raw == null) {
-            throw new IllegalArgumentException("applicationCode is required");
-        }
-        String normalized = raw.trim().toUpperCase();
-        return new ApplicationCode(normalized);
     }
 }

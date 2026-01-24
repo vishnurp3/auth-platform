@@ -16,10 +16,6 @@ public record VerificationToken(UUID tokenId, String secret) {
         }
     }
 
-    public static VerificationToken of(UUID tokenId, String secret) {
-        return new VerificationToken(tokenId, secret);
-    }
-
     public static VerificationToken parse(String encoded) {
         if (encoded == null || encoded.isBlank()) {
             throw new IllegalArgumentException("token is required");

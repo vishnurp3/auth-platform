@@ -1,8 +1,8 @@
-package com.vishnu.authplatform.application.adapter.config;
+package com.vishnu.authplatform.appregistry.adapter.config;
 
-import com.vishnu.authplatform.application.application.CreateApplicationUseCase;
-import com.vishnu.authplatform.application.application.UpdateApplicationStatusUseCase;
-import com.vishnu.authplatform.application.application.port.ApplicationRepository;
+import com.vishnu.authplatform.appregistry.application.CreateApplicationUseCase;
+import com.vishnu.authplatform.appregistry.application.UpdateApplicationStatusUseCase;
+import com.vishnu.authplatform.appregistry.application.port.ApplicationRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

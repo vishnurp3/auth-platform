@@ -1,4 +1,4 @@
-package com.vishnu.authplatform.application.adapter.persistence;
+package com.vishnu.authplatform.appregistry.adapter.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

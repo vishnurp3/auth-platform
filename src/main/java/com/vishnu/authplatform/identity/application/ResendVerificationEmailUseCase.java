@@ -1,8 +1,10 @@
 package com.vishnu.authplatform.identity.application;
 
+import com.vishnu.authplatform.identity.application.command.ResendVerificationEmailCommand;
 import com.vishnu.authplatform.identity.application.port.EmailVerificationTokenRepository;
 import com.vishnu.authplatform.identity.application.port.UserRepository;
 import com.vishnu.authplatform.identity.application.port.VerificationEmailPublisher;
+import com.vishnu.authplatform.identity.application.result.IssuedTokenPair;
 import com.vishnu.authplatform.identity.domain.Email;
 import com.vishnu.authplatform.identity.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +22,10 @@ public final class ResendVerificationEmailUseCase {
     private final VerificationEmailRateLimiter rateLimiter;
     private final Clock clock;
 
-    public void execute(Command cmd) {
+    public void execute(ResendVerificationEmailCommand cmd) {
         Email email;
         try {
-            email = Email.of(cmd.email());
+            email = new Email(cmd.email());
         } catch (IllegalArgumentException e) {
             return;
         }
@@ -43,7 +45,7 @@ public final class ResendVerificationEmailUseCase {
             return;
         }
 
-        VerificationTokenService.IssuedTokenPair tokenPair = verificationTokenService.issueToken(user.id(), now);
+        IssuedTokenPair tokenPair = verificationTokenService.issueToken(user.id(), now);
         tokenRepository.save(tokenPair.token());
 
         verificationEmailPublisher.publishSendVerificationEmail(
@@ -51,8 +53,5 @@ public final class ResendVerificationEmailUseCase {
                 user.email().value(),
                 tokenPair.verificationToken().encode()
         );
-    }
-
-    public record Command(String email) {
     }
 }

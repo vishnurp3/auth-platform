@@ -1,6 +1,6 @@
 package com.vishnu.authplatform.shared.error;
 
-import com.vishnu.authplatform.application.application.UpdateApplicationStatusUseCase;
+import com.vishnu.authplatform.appregistry.application.exception.ApplicationNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +20,8 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("CONFLICT", ex.getMessage()));
     }
 
-    @ExceptionHandler(UpdateApplicationStatusUseCase.ApplicationNotFoundException.class)
-    public ResponseEntity<ApiError> handleApplicationNotFound(
-            UpdateApplicationStatusUseCase.ApplicationNotFoundException ex) {
+    @ExceptionHandler(ApplicationNotFoundException.class)
+    public ResponseEntity<ApiError> handleApplicationNotFound(ApplicationNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("NOT_FOUND", ex.getMessage()));
     }
 

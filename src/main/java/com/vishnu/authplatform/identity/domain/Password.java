@@ -12,8 +12,4 @@ public record Password(String value) {
             throw new IllegalArgumentException("password must be at least " + MIN_LENGTH + " characters");
         }
     }
-
-    public static Password of(String raw) {
-        return new Password(raw);
-    }
 }

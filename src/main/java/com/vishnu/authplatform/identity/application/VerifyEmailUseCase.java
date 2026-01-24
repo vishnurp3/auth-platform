@@ -1,16 +1,16 @@
 package com.vishnu.authplatform.identity.application;
 
+import com.vishnu.authplatform.identity.application.command.VerifyEmailCommand;
 import com.vishnu.authplatform.identity.application.port.EmailVerificationTokenRepository;
 import com.vishnu.authplatform.identity.application.port.UserRepository;
+import com.vishnu.authplatform.identity.application.result.VerifyEmailResult;
 import com.vishnu.authplatform.identity.domain.EmailVerificationToken;
 import com.vishnu.authplatform.identity.domain.User;
-import com.vishnu.authplatform.identity.domain.UserStatus;
 import com.vishnu.authplatform.identity.domain.VerificationToken;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class VerifyEmailUseCase {
@@ -20,7 +20,7 @@ public final class VerifyEmailUseCase {
     private final VerificationTokenService verificationTokenService;
     private final Clock clock;
 
-    public Result execute(Command cmd) {
+    public VerifyEmailResult execute(VerifyEmailCommand cmd) {
         VerificationToken verificationToken = verificationTokenService.parseToken(cmd.token());
 
         EmailVerificationToken token = tokenRepository.findById(verificationToken.tokenId())
@@ -41,12 +41,6 @@ public final class VerifyEmailUseCase {
 
         tokenRepository.save(token.markUsed(now));
 
-        return new Result(activated.id().value(), activated.status());
-    }
-
-    public record Command(String token) {
-    }
-
-    public record Result(UUID userId, UserStatus status) {
+        return new VerifyEmailResult(activated.id().value(), activated.status());
     }
 }

@@ -1,10 +1,10 @@
-package com.vishnu.authplatform.application.adapter.persistence;
+package com.vishnu.authplatform.appregistry.adapter.persistence;
 
-import com.vishnu.authplatform.application.application.port.ApplicationRepository;
-import com.vishnu.authplatform.application.domain.Application;
-import com.vishnu.authplatform.application.domain.ApplicationCode;
-import com.vishnu.authplatform.application.domain.ApplicationId;
-import com.vishnu.authplatform.application.domain.ApplicationStatus;
+import com.vishnu.authplatform.appregistry.application.port.ApplicationRepository;
+import com.vishnu.authplatform.appregistry.domain.Application;
+import com.vishnu.authplatform.appregistry.domain.ApplicationCode;
+import com.vishnu.authplatform.appregistry.domain.ApplicationId;
+import com.vishnu.authplatform.appregistry.domain.ApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class JpaApplicationRepositoryAdapter implements ApplicationRepository {
     private Application toDomain(ApplicationEntity entity) {
         return Application.reconstitute(
                 new ApplicationId(entity.getId()),
-                ApplicationCode.of(entity.getCode()),
+                new ApplicationCode(entity.getCode()),
                 entity.getName(),
                 entity.getDescription(),
                 ApplicationStatus.valueOf(entity.getStatus()),

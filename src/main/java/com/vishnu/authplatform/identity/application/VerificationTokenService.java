@@ -1,6 +1,7 @@
 package com.vishnu.authplatform.identity.application;
 
 import com.vishnu.authplatform.identity.application.port.TokenGenerator;
+import com.vishnu.authplatform.identity.application.result.IssuedTokenPair;
 import com.vishnu.authplatform.identity.domain.EmailVerificationToken;
 import com.vishnu.authplatform.identity.domain.UserId;
 import com.vishnu.authplatform.identity.domain.VerificationToken;
@@ -24,7 +25,7 @@ public final class VerificationTokenService {
         Instant expiresAt = now.plus(TOKEN_VALIDITY_DURATION);
 
         EmailVerificationToken token = EmailVerificationToken.issue(tokenId, userId, secretHash, now, expiresAt);
-        VerificationToken verificationToken = VerificationToken.of(tokenId, secret);
+        VerificationToken verificationToken = new VerificationToken(tokenId, secret);
 
         return new IssuedTokenPair(token, verificationToken);
     }
@@ -47,8 +48,5 @@ public final class VerificationTokenService {
             result |= a.charAt(i) ^ b.charAt(i);
         }
         return result == 0;
-    }
-
-    public record IssuedTokenPair(EmailVerificationToken token, VerificationToken verificationToken) {
     }
 }

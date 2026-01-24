@@ -1,17 +1,18 @@
-package com.vishnu.authplatform.application.application;
+package com.vishnu.authplatform.appregistry.application;
 
-import com.vishnu.authplatform.application.application.port.ApplicationRepository;
-import com.vishnu.authplatform.application.domain.Application;
-import com.vishnu.authplatform.application.domain.ApplicationCode;
-import com.vishnu.authplatform.application.domain.ApplicationId;
-import com.vishnu.authplatform.application.domain.ApplicationStatus;
+import com.vishnu.authplatform.appregistry.application.command.CreateApplicationCommand;
+import com.vishnu.authplatform.appregistry.application.port.ApplicationRepository;
+import com.vishnu.authplatform.appregistry.application.result.ApplicationResult;
+import com.vishnu.authplatform.appregistry.domain.Application;
+import com.vishnu.authplatform.appregistry.domain.ApplicationCode;
+import com.vishnu.authplatform.appregistry.domain.ApplicationId;
+import com.vishnu.authplatform.appregistry.domain.ApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class CreateApplicationUseCase {
@@ -21,8 +22,8 @@ public final class CreateApplicationUseCase {
     private final ApplicationRepository applicationRepository;
     private final Clock clock;
 
-    public Result execute(Command cmd, String adminIdentifier) {
-        ApplicationCode code = ApplicationCode.of(cmd.applicationCode());
+    public ApplicationResult execute(CreateApplicationCommand cmd, String adminIdentifier) {
+        ApplicationCode code = new ApplicationCode(cmd.applicationCode());
 
         if (applicationRepository.existsByCode(code)) {
             throw new IllegalStateException("application with code '" + code.value() + "' already exists");
@@ -50,7 +51,7 @@ public final class CreateApplicationUseCase {
                 application.status(),
                 application.createdBy());
 
-        return new Result(
+        return new ApplicationResult(
                 application.id().value(),
                 application.code().value(),
                 application.name(),
@@ -59,24 +60,5 @@ public final class CreateApplicationUseCase {
                 application.createdAt(),
                 application.updatedAt()
         );
-    }
-
-    public record Command(
-            String applicationCode,
-            String name,
-            String description,
-            ApplicationStatus status
-    ) {
-    }
-
-    public record Result(
-            UUID applicationId,
-            String applicationCode,
-            String name,
-            String description,
-            String status,
-            Instant createdAt,
-            Instant updatedAt
-    ) {
     }
 }

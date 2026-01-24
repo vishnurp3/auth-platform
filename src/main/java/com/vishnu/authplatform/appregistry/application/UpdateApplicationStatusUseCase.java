@@ -1,16 +1,18 @@
-package com.vishnu.authplatform.application.application;
+package com.vishnu.authplatform.appregistry.application;
 
-import com.vishnu.authplatform.application.application.port.ApplicationRepository;
-import com.vishnu.authplatform.application.domain.Application;
-import com.vishnu.authplatform.application.domain.ApplicationCode;
-import com.vishnu.authplatform.application.domain.ApplicationStatus;
+import com.vishnu.authplatform.appregistry.application.command.UpdateApplicationStatusCommand;
+import com.vishnu.authplatform.appregistry.application.exception.ApplicationNotFoundException;
+import com.vishnu.authplatform.appregistry.application.port.ApplicationRepository;
+import com.vishnu.authplatform.appregistry.application.result.ApplicationResult;
+import com.vishnu.authplatform.appregistry.domain.Application;
+import com.vishnu.authplatform.appregistry.domain.ApplicationCode;
+import com.vishnu.authplatform.appregistry.domain.ApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public final class UpdateApplicationStatusUseCase {
@@ -20,8 +22,8 @@ public final class UpdateApplicationStatusUseCase {
     private final ApplicationRepository applicationRepository;
     private final Clock clock;
 
-    public Result execute(Command cmd) {
-        ApplicationCode code = ApplicationCode.of(cmd.applicationCode());
+    public ApplicationResult execute(UpdateApplicationStatusCommand cmd) {
+        ApplicationCode code = new ApplicationCode(cmd.applicationCode());
 
         Application application = applicationRepository.findByCode(code)
                 .orElseThrow(() -> new ApplicationNotFoundException(
@@ -51,8 +53,8 @@ public final class UpdateApplicationStatusUseCase {
         return toResult(updated);
     }
 
-    private Result toResult(Application application) {
-        return new Result(
+    private ApplicationResult toResult(Application application) {
+        return new ApplicationResult(
                 application.id().value(),
                 application.code().value(),
                 application.name(),
@@ -61,28 +63,5 @@ public final class UpdateApplicationStatusUseCase {
                 application.createdAt(),
                 application.updatedAt()
         );
-    }
-
-    public record Command(
-            String applicationCode,
-            ApplicationStatus newStatus
-    ) {
-    }
-
-    public record Result(
-            UUID applicationId,
-            String applicationCode,
-            String name,
-            String description,
-            String status,
-            Instant createdAt,
-            Instant updatedAt
-    ) {
-    }
-
-    public static class ApplicationNotFoundException extends RuntimeException {
-        public ApplicationNotFoundException(String message) {
-            super(message);
-        }
     }
 }

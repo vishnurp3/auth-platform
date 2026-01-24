@@ -38,7 +38,7 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
                 );
 
         UserEntity saved = userJpa.save(entity);
-        return User.reconstitute(new UserId(saved.getId()), Email.of(saved.getEmail()), saved.getPasswordHash(),
+        return User.reconstitute(new UserId(saved.getId()), new Email(saved.getEmail()), saved.getPasswordHash(),
                 UserStatus.valueOf(saved.getStatus()), saved.getCreatedAt(), saved.getUpdatedAt());
     }
 
@@ -92,7 +92,7 @@ public class JpaIdentityRepositoryAdapter implements UserRepository, EmailVerifi
 
 
     private User toDomainUser(UserEntity e) {
-        return User.reconstitute(new UserId(e.getId()), Email.of(e.getEmail()), e.getPasswordHash(),
+        return User.reconstitute(new UserId(e.getId()), new Email(e.getEmail()), e.getPasswordHash(),
                 UserStatus.valueOf(e.getStatus()), e.getCreatedAt(), e.getUpdatedAt());
     }
 }

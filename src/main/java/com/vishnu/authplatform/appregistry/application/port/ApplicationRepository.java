@@ -1,8 +1,8 @@
-package com.vishnu.authplatform.application.application.port;
+package com.vishnu.authplatform.appregistry.application.port;
 
-import com.vishnu.authplatform.application.domain.Application;
-import com.vishnu.authplatform.application.domain.ApplicationCode;
-import com.vishnu.authplatform.application.domain.ApplicationId;
+import com.vishnu.authplatform.appregistry.domain.Application;
+import com.vishnu.authplatform.appregistry.domain.ApplicationCode;
+import com.vishnu.authplatform.appregistry.domain.ApplicationId;
 
 import java.util.Optional;
 

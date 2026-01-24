@@ -1,4 +1,4 @@
-package com.vishnu.authplatform.application.domain;
+package com.vishnu.authplatform.appregistry.domain;
 
 public enum ApplicationStatus {
     ACTIVE,

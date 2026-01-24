@@ -101,7 +101,7 @@ public class UserSteps {
 
     @When("I verify the email using a valid but unknown token")
     public void verifyEmailUsingUnknownToken() {
-        VerificationToken token = VerificationToken.of(UUID.randomUUID(), "unknown-secret");
+        VerificationToken token = new VerificationToken(UUID.randomUUID(), "unknown-secret");
         sharedContext.setLastResponse(rest.getForEntity("/api/v1/users/verify-email?token=" + token.encode(), String.class));
     }
 
