@@ -1,6 +1,9 @@
 package com.vishnu.authplatform.shared.error;
 
 import com.vishnu.authplatform.appregistry.application.exception.ApplicationNotFoundException;
+import com.vishnu.authplatform.appregistry.application.exception.MembershipAlreadyExistsException;
+import com.vishnu.authplatform.appregistry.application.exception.RoleNotFoundException;
+import com.vishnu.authplatform.appregistry.application.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,21 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ApiError> handleApplicationNotFound(ApplicationNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ApiError> handleRoleNotFound(RoleNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiError.of("NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(MembershipAlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleMembershipAlreadyExists(MembershipAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiError.of("CONFLICT", ex.getMessage()));
     }
 
     public record ApiError(String code, String message, Instant timestamp) {

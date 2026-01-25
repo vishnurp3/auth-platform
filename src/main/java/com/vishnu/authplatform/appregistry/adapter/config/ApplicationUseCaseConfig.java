@@ -1,10 +1,13 @@
 package com.vishnu.authplatform.appregistry.adapter.config;
 
 import com.vishnu.authplatform.appregistry.application.CreateApplicationUseCase;
+import com.vishnu.authplatform.appregistry.application.CreateMembershipUseCase;
 import com.vishnu.authplatform.appregistry.application.CreateRoleUseCase;
 import com.vishnu.authplatform.appregistry.application.UpdateApplicationStatusUseCase;
 import com.vishnu.authplatform.appregistry.application.port.ApplicationRepository;
+import com.vishnu.authplatform.appregistry.application.port.MembershipRepository;
 import com.vishnu.authplatform.appregistry.application.port.RoleRepository;
+import com.vishnu.authplatform.identity.application.port.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,5 +39,16 @@ public class ApplicationUseCaseConfig {
             Clock clock
     ) {
         return new CreateRoleUseCase(applicationRepository, roleRepository, clock);
+    }
+
+    @Bean
+    public CreateMembershipUseCase createMembershipUseCase(
+            UserRepository userRepository,
+            ApplicationRepository applicationRepository,
+            RoleRepository roleRepository,
+            MembershipRepository membershipRepository,
+            Clock clock
+    ) {
+        return new CreateMembershipUseCase(userRepository, applicationRepository, roleRepository, membershipRepository, clock);
     }
 }
