@@ -181,6 +181,264 @@ public class MembershipSteps {
         sharedContext.setLastResponse(postJsonWithAuth(path, body, "invalid-api-key"));
     }
 
+    @Given("a membership exists for user {string} in application {string} with roles {string} stored as {string}")
+    public void aMembershipExistsWithRolesStoredAs(String userStorageKey, String applicationCode, String roleCodesStr, String membershipStorageKey) {
+        currentApiKey = validAdminApiKey;
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("roleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships";
+        ResponseEntity<String> response = postJsonWithAuth(path, body, currentApiKey);
+        assertEquals(201, response.getStatusCode().value(), "Membership creation failed");
+
+        String membershipId = readFieldFromResponse(response, "membershipId");
+        assertNotNull(membershipId, "membershipId not found in response");
+        sharedContext.storeValue(membershipStorageKey, membershipId);
+    }
+
+    @Given("a membership exists for user {string} in application {string} with roles {string}")
+    public void aMembershipExistsWithRoles(String userStorageKey, String applicationCode, String roleCodesStr) {
+        currentApiKey = validAdminApiKey;
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("roleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships";
+        ResponseEntity<String> response = postJsonWithAuth(path, body, currentApiKey);
+        assertEquals(201, response.getStatusCode().value(), "Membership creation failed");
+    }
+
+    @Given("a membership exists for user {string} in application {string} with no roles stored as {string} with system credentials")
+    public void aMembershipExistsWithNoRolesStoredAsWithSystemCredentials(String userStorageKey, String applicationCode, String membershipStorageKey) {
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("roleCodes", List.of());
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships";
+        ResponseEntity<String> response = postJsonWithAuth(path, body, validAdminApiKey);
+        assertEquals(201, response.getStatusCode().value(), "Membership creation failed");
+
+        String membershipId = readFieldFromResponse(response, "membershipId");
+        assertNotNull(membershipId, "membershipId not found in response");
+        sharedContext.storeValue(membershipStorageKey, membershipId);
+    }
+
+    @Given("an inactive membership exists for user {string} in application {string} with roles {string} stored as {string}")
+    public void anInactiveMembershipExistsWithRolesStoredAs(String userStorageKey, String applicationCode, String roleCodesStr, String membershipStorageKey) {
+        currentApiKey = validAdminApiKey;
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("userId", userId);
+        body.put("roleCodes", roleCodes);
+        body.put("status", "INACTIVE");
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships";
+        ResponseEntity<String> response = postJsonWithAuth(path, body, currentApiKey);
+        assertEquals(201, response.getStatusCode().value(), "Membership creation failed");
+
+        String membershipId = readFieldFromResponse(response, "membershipId");
+        assertNotNull(membershipId, "membershipId not found in response");
+        sharedContext.storeValue(membershipStorageKey, membershipId);
+    }
+
+    @When("I modify membership {string} roles to replace with {string}")
+    public void iModifyMembershipRolesToReplaceWith(String membershipStorageKey, String roleCodesStr) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} roles to replace with empty roles")
+    public void iModifyMembershipRolesToReplaceWithEmptyRoles(String membershipStorageKey) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", List.of());
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} to add roles {string}")
+    public void iModifyMembershipToAddRoles(String membershipStorageKey, String roleCodesStr) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("addRoleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} to remove roles {string}")
+    public void iModifyMembershipToRemoveRoles(String membershipStorageKey, String roleCodesStr) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("removeRoleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} to add roles {string} and remove roles {string}")
+    public void iModifyMembershipToAddAndRemoveRoles(String membershipStorageKey, String addRoleCodesStr, String removeRoleCodesStr) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        List<String> addRoleCodes = Arrays.asList(addRoleCodesStr.split(","));
+        List<String> removeRoleCodes = Arrays.asList(removeRoleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("addRoleCodes", addRoleCodes);
+        body.put("removeRoleCodes", removeRoleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership for user {string} in application {string} to replace with roles {string}")
+    public void iModifyMembershipForUserToReplaceWithRoles(String userStorageKey, String applicationCode, String roleCodesStr) {
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships/by-user/" + userId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership for user {string} in application {string} to add roles {string}")
+    public void iModifyMembershipForUserToAddRoles(String userStorageKey, String applicationCode, String roleCodesStr) {
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("addRoleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships/by-user/" + userId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership for user {string} in application {string} to remove roles {string}")
+    public void iModifyMembershipForUserToRemoveRoles(String userStorageKey, String applicationCode, String roleCodesStr) {
+        String userId = sharedContext.getValue(userStorageKey);
+        assertNotNull(userId, "User ID not found for key: " + userStorageKey);
+
+        List<String> roleCodes = Arrays.asList(roleCodesStr.split(","));
+        Map<String, Object> body = new HashMap<>();
+        body.put("removeRoleCodes", roleCodes);
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships/by-user/" + userId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify non-existent membership roles in application {string}")
+    public void iModifyNonExistentMembershipRoles(String applicationCode) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", List.of());
+
+        String path = APPLICATIONS_ENDPOINT + "/" + applicationCode + "/memberships/" + UUID.randomUUID() + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} with both replace and patch mode")
+    public void iModifyMembershipWithBothReplaceAndPatchMode(String membershipStorageKey) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", List.of("USER"));
+        body.put("addRoleCodes", List.of("ADMIN"));
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} with empty request")
+    public void iModifyMembershipWithEmptyRequest(String membershipStorageKey) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, currentApiKey));
+    }
+
+    @When("I modify membership {string} roles without authentication")
+    public void iModifyMembershipRolesWithoutAuthentication(String membershipStorageKey) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", List.of());
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, null));
+    }
+
+    @When("I modify membership {string} roles with invalid API key")
+    public void iModifyMembershipRolesWithInvalidApiKey(String membershipStorageKey) {
+        String membershipId = sharedContext.getValue(membershipStorageKey);
+        assertNotNull(membershipId, "Membership ID not found for key: " + membershipStorageKey);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("roleCodes", List.of());
+
+        String path = APPLICATIONS_ENDPOINT + "/any/memberships/" + membershipId + "/roles";
+        sharedContext.setLastResponse(patchJsonWithAuth(path, body, "invalid-api-key"));
+    }
+
+    @Then("the membership should include role {string}")
+    public void membershipShouldIncludeRole(String expectedRoleCode) {
+        ResponseEntity<String> response = sharedContext.getLastResponse();
+        assertNotNull(response, "No response captured");
+        String body = response.getBody();
+        assertNotNull(body, "No response body");
+        try {
+            Map<String, Object> payload = objectMapper.readValue(body, new TypeReference<>() {
+            });
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> assignedRoles = (List<Map<String, Object>>) payload.get("assignedRoles");
+            assertNotNull(assignedRoles, "assignedRoles not found in response");
+
+            boolean found = assignedRoles.stream()
+                    .anyMatch(role -> expectedRoleCode.equals(role.get("roleCode")));
+            assertTrue(found, "Role " + expectedRoleCode + " not found in assigned roles");
+        } catch (Exception e) {
+            fail("Failed to parse response body: " + e.getMessage());
+        }
+    }
+
     @Then("the membership should have a valid id")
     public void membershipShouldHaveValidId() {
         String id = readField("membershipId");
